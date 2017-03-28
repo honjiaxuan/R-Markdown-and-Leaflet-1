@@ -1,0 +1,35 @@
+---
+title: "R Markdown and Leaflet"
+author: "Andrea"
+date: "28/3/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# List of European cities by population
+Source Wikipedia https://en.wikipedia.org/wiki/List_of_European_cities_by_population_within_city_limits
+
+```{r}
+cities <- read.csv("largest_cities.csv")
+#cities
+cities$lat <- as.numeric(gsub('°N', '', cities$lat))
+widx <-grep("W", cities$lng)
+#widx
+cities$lng <- gsub('°E', '', cities$lng)
+cities$lng <- gsub('°W', '', cities$lng)
+cities$lng <- as.numeric(cities$lng)
+cities[widx,'lng'] <- -cities[widx,'lng']
+#cities
+```
+
+By clicking on the circle a popup will show the name of the City and its population.
+
+```{r}
+library("leaflet")
+cities %>%
+  leaflet() %>%
+  addTiles() %>%
+  addCircles(weight = 1, radius = sqrt(cities$pop) * 50, popup = paste(cities$name, cities$pop))
+```
